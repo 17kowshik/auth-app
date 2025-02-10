@@ -17,6 +17,11 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestParam String userName, @RequestParam String password) {
+        if (userName == null || userName.isEmpty() || password == null || password.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Username and password cannot be empty.");
+        }
+
         String response = userService.registerUser(userName, password);
 
         return switch (response) {
@@ -33,13 +38,22 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestParam String userName, @RequestParam String password){
+        if (userName == null || userName.isEmpty() || password == null || password.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Username and password cannot be empty.");
+        }
+
         String loginResult = userService.login(userName, password);
 
         return switch (loginResult) {
-            case "SUCCESS" -> ResponseEntity.ok("User logged in successfully!");
-            case "INVALID_CREDENTIALS" -> ResponseEntity.status(401).body("Incorrect credentials. Please try again.");
-            case "USER_NOT_FOUND" -> ResponseEntity.status(404).body("User not found. Please register for access.");
-            default -> ResponseEntity.status(500).body("An unexpected error occurred.");
+            case "SUCCESS" -> ResponseEntity.status(HttpStatus.OK)
+                    .body("User logged in successfully!");
+            case "INVALID_CREDENTIALS" -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Incorrect credentials. Please try again.");
+            case "USER_NOT_FOUND" -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User not found. Please register for access.");
+            default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred.");
         };
     }
 }
