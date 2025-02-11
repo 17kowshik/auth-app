@@ -4,19 +4,42 @@ import com.kowshik.auth_app_springboot_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
     @Autowired
     private UserService userService;
 
+    public static class UserRequest {
+        private String userName;
+        private String password;
+
+        public String getUserName() {
+            return userName;
+        }
+
+        public void setUserName(String userName) {
+            this.userName = userName;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+    }
+
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestParam String userName, @RequestParam String password) {
+    public ResponseEntity<String> registerUser(@RequestBody UserRequest userRequest) {
+        String userName = userRequest.getUserName();
+        String password = userRequest.getPassword();
+
         if (userName == null || userName.isEmpty() || password == null || password.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Username and password cannot be empty.");
@@ -37,7 +60,10 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String userName, @RequestParam String password){
+    public ResponseEntity<String> login(@RequestBody UserRequest userRequest) {
+        String userName = userRequest.getUserName();
+        String password = userRequest.getPassword();
+
         if (userName == null || userName.isEmpty() || password == null || password.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Username and password cannot be empty.");
